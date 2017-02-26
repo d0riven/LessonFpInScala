@@ -5,11 +5,11 @@
  */
 object MyModule {
   def uncurry[A, B, C](f:A => B => C):(A, B) => C =
-    (x:A, y:B) => f(x, y):C
+    (x, y) => f(x)(y)
 
 
   def main(args:Array[String]):Unit = {
-    val cadd = x:Int => (y:Int => (x + y):Int)
+    val cadd = (x:Int) => ((y:Int) => (x + y):Int)
     println(cadd(1)(2))
     val add = uncurry(cadd)
     println(add(1, 2))
