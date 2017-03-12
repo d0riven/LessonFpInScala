@@ -96,15 +96,42 @@ object List {
     foldRight(as, 0)((x, y) => 1 + y)
 
   // Exericise 3.10
-  /* 結果をメモ化して渡すという方法でいけるのでは、という状態で一時停止。
   def foldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B = {
-    def go[A](as:List[A], z:B, acc:B)(f:(B, A) => B):B = as match {
-      case Nil => z
-      case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+    def go[A](as:List[A], acc:B)(f:(B, A) => B):B = as match {
+      case Nil => acc
+      case Cons(h, t) => go(t, f(acc, h))(f)
     }
-    go(as, z, z)(f)
+    go(as, z)(f)
   }
-  */
+
+  // Exercise 3.11
+  def sumWithFoldLeft(as:List[Int]):Int =
+    foldLeft(as, 0)(_ + _)
+  def productWithFoldLeft(as:List[Double]):Double =
+    foldLeft(as, 1.0)(_ * _)
+  def lengthWithFoldLeft[A](as:List[A]):Int =
+    foldLeft(as, 0)((x, y) => 1 + x)
+
+  // Excercise 3.12
+  def reverse[A](as:List[A]):List[A] =
+    foldLeft(as, Nil:List[A])((x, y) => Cons(y, x))
+
+  // Exercise 3.13
+  // 諦めた
+  //def foldRightWithFoldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B =
+  //  foldLeft(as, z)((x:B, y:A) => f(y:A, x:B):B)
+
+  // Excercise 3.14
+  def append[A](as:List[A], t:A):List[A] =
+    foldRight(as, Cons(t, Nil))(Cons(_,_))
+
+  // Excercise 3.15
+  // def flatten[A](as:List[A]*):List[A] = {
+  //   def go(acc:List[A], as:List[A]*) {
+  //     if(as.isEmpty) acc
+  //   }
+  //   go(Nil:List[A], as)
+  // }
 }
 
 /**
@@ -199,6 +226,40 @@ object List {
  * シグネチャは以下のとおり。
  *   def foldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B
  */
+/**
+ * 3.11
+ * @問題文
+ * foldLeftを使ってsum, product, およびリストの長さを計算する関数を記述せよ
+ */
+/**
+ * 3.12
+ * @問題文
+ * 要素が逆に並んだリストを返す関数を記述せよ。List(1,2,3)が与えられた場合、この関数はList(3,2,1,)を返す。
+ * 畳み込みを使って記述できるかどうかを確認すること。
+ */
+/**
+ * 3.13
+ * @問題文
+ * 難問：foldRightをベースとしてfoldLeftを記述することは可能か。その逆はどうか。
+ * foldLeftを使ってfoldRightを実装すると、foldRightを末尾再帰に実装することが可能となり、
+ * 大きなリストでもスタックオーバーフローが発生しなくなるので便利である。
+ *
+ * @答え
+ * 実装は可能。
+ * 計算の途中の状態で初期状態が変わるものでなければ行けると思う。（そんなパターンがあるかはちゃんと考えてない）
+ */
+/**
+ * 3.14
+ * @問題文
+ * foldLeftまたはfoldRightをベースにappendを作成せよ
+ */
+/**
+ * 3.15
+ * @問題文
+ * 難問：複数のリストからなるリストを1つのリストとして連結する関数を記述せよ。
+ * この関数の実行時間はすべてのリストの長さの合計に対して線形になるはずである。
+ * すでに実装した関数を使ってみること。
+ */
 object Excercise_3 {
   def main(args: Array[String]) {
     val x = List(1,2,3,4,5) match {
@@ -219,6 +280,20 @@ object Excercise_3 {
     println(List.dropWhileCurry(List(1, 2, 3, 4, 5))(x => x < 4))
     println(List.init(List(1,2,3,4)))
     println(List.foldRight(List(1,2,3), Nil:List[Int])(Cons(_,_)))
+    // Ex3.11 sum
+    println(List.foldLeft(List(1,2,3), 0)(_ + _))
+    println(List.sumWithFoldLeft(List(1,2,3)))
+    // Ex3.11 product
+    println(List.foldLeft(List(1,2,3,4), 1)(_ * _))
+    println(List.productWithFoldLeft(List(1,2,3,4)))
+    // Ex3.11 length
     println(List.length(List(1,2,3,4,5,6)))
+    println(List.lengthWithFoldLeft(List(1,2,3,4,5,6)))
+    // Ex3.12
+    println(List.reverse(List(1,2,3,4,5,6)))
+    // Ex3.14
+    println(List.append(List(1,2), 3))
+    // Ex3.15
+    println(List.flatten(List(1,2), List(3), List(4, 5, 6)))
   }
 }
