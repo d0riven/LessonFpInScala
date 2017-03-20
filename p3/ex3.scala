@@ -280,10 +280,9 @@ object List {
    * @問題文
    * flatMapを使ってfilterを実装せよ
    */
-  // 分からん
-  //def filterWithFlatMap[A](as:List[A])(f:A => Boolean): List[A] = as match {
-  //  case Nil => Nil
-  //}
+  // 分からん => ので公式みた
+  def filterWithFlatMap[A](as:List[A])(f:A => Boolean): List[A] =
+    flatMap(as)(x => if(f(x)) List(x) else Nil)
 
   /**
    * 3.22
@@ -427,7 +426,7 @@ object Excercise_3 {
     // Ex3.20
     println(List.flatMap(List(1,2,3))(x => List(x,x)))
     // Ex3.21
-    //println(List.filterWithFlatMap(List(1,2,3,4,5,6))(x => x % 2 == 0))
+    println(List.filterWithFlatMap(List(1,2,3,4,5,6))(x => x % 2 == 0))
     // Ex3.22
     println(List.addComposeLists(List(1,2,3),List(4,5,6)))
     // Ex3.23
