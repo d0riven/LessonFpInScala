@@ -291,9 +291,61 @@ object List {
    * リストを2つ受け取り、対応する要素どうしを足し合わせて新しいリストを生成する関数を記述せよ。
    * 例えばList(1,2,3)とList(4,5,6)はList(5,7,9)になる。
    */
-  def addLists(as:List[List[Int]]):List[Int] = as match {
-    case 
+  // @memo 分からなかったので公式みたらConsをタプルで定義してcaseとマッチさせるという技を使ってた
+  // @see https://github.com/fpinscala/fpinscala/blob/master/answers/src/main/scala/fpinscala/datastructures/List.scala#L292
+  def addComposeLists(as:List[Int], bs:List[Int]):List[Int] = (as, bs) match {
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+    case (Cons(h1, t1), Cons(h2, t2)) => Cons(h1 + h2, addComposeLists(t1, t2))
   }
+
+  /**
+   * 3.23
+   * @問題文
+   * EXERCISE3.22で作成した関数を、整数または可算に限定されないように一般化せよ。
+   * 一般化された関数にはzipWithという名前を付けること。
+   */
+  def zipWith(as:List[Int], bs:List[Int])(f:(Int,Int) => Int):List[Int] = (as, bs) match {
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+    case (Cons(h1, t1), Cons(h2, t2)) => Cons(f(h1, h2), zipWith(t1, t2)(f))
+  }
+
+  /**
+   * 3.24
+   * @問題文
+   * 難問: 例として、Listに別のListがサブシーケンスとして含まれているかどうかを調べるhasSubsequenceを実装せよ。
+   * たとえばList(1,2,3,4)には、List(1,2,), List(3,4), List(4)などがサブシーケンスとして含まれている。
+   * 純粋関数型で、コンパクトで、かつ効率的な実装を見つけ出すのは難しいかもしれない。その場合は、それでかまわない。
+   * どのようなものであれ、最も自然な関数を実装すること。この実装については、第5章で改めて取り上げ、改良する予定である。
+   * なおScalaでは、任意の値xおよびyに対し、x == yという四季を使って等しいかどいうかを比較できる。
+   *   def hasSubsequence[A](sup:List[A], sub:List[A]):Boolean
+   */
+  def hasSubsequence[A](sup:List[A], sub:List[A]):Boolean = {
+    def go(target:List[A], subList:List[A]):Boolean = (target, subList) match {
+      case (_, Nil) => true
+      case (Nil, _) => false
+      case (Cons(ht, tt), Cons(hs, ts)) if ht != hs => false
+      case (Cons(ht, tt), Cons(hs, ts)) if ht == hs => go(tt, ts)
+    }
+    sup match {
+      case Nil => false
+      case Cons(h, t) if go(sup, sub) == false => hasSubsequence(t, sub)
+      case Cons(h, t) if go(sup, sub) == true  => true
+    }
+  }
+  // 手続き型だったらどう書くんだっけのメモ書き
+  //for(int i = 0; i < sup.size - sub.size; ++i) {
+  //  bool success = true;
+  //  for(int j = 0; j < sub.size; ++j) {
+  //    if(sup.at(i) != sup.at(j)) {
+  //      success = false;
+  //      break;
+  //    }
+  //  }
+  //  if(success) return true;
+  //}
+  //return false;
 }
 
 /**
@@ -318,7 +370,7 @@ object List {
  * applyもfoldRightを使うことで表現できるということになり、applyをfoldRightで表現したのが上記の関数呼び出しになる。
  */
 object Excercise_3 {
-  def main(args: Array[String]) {
+  def main(args: Array[String]):Unit = {
     /**
      * 3.1
      * @問題文
@@ -375,6 +427,14 @@ object Excercise_3 {
     // Ex3.20
     println(List.flatMap(List(1,2,3))(x => List(x,x)))
     // Ex3.21
-    println(List.filterWithFlatMap(List(1,2,3,4,5,6))(x => x % 2 == 0))
+    //println(List.filterWithFlatMap(List(1,2,3,4,5,6))(x => x % 2 == 0))
+    // Ex3.22
+    println(List.addComposeLists(List(1,2,3),List(4,5,6)))
+    // Ex3.23
+    println(List.zipWith(List(1,2,3),List(4,5,6))((x, y) => x + y))
+    // Ex3.24
+    println(List.hasSubsequence(List(1,2,3,4), List(1,2)))
+    println(List.hasSubsequence(List(1,2,3,4), List(1,3)))
+    println(List.hasSubsequence(List(1,2,3,4), List(2,3,4)))
   }
 }
