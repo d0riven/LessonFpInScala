@@ -52,10 +52,23 @@ object Tree {
    * そして、このより汎用的なfold関数を使ってそれらを再実装せよ。
    * このfold関数とListの左畳み込みおよび右畳み込みの間にある類似性を抽出することは可能か。
    */
-  def fold[A,B](tree:Tree[A], z:B)(f:(A, B)=> B):B = tree match {
-    case Leaf(v) => z
-    case Branch(l, r) => f(1
+  // 公式の解答参考にした
+  def fold[A,B](tree:Tree[A])(f:A => B)(g:(B, B) => B):B = tree match {
+    case Leaf(v) => f(v)
+    case Branch(l, r) => g(fold(l)(f)(g), fold(r)(f)(g))
   }
+
+  def sizeWithFold[A](tree:Tree[A]):Int =
+    fold(tree)(_ => 1)((x, y) => x + y)
+
+  def maximumWithFold(tree:Tree[Int]):Int =
+    fold(tree)(x => x)((x, y) => x max y)
+
+  def depthWithFold[A](tree:Tree[A]):Int =
+    fold(tree)(_ => 1)((x, y) => (x max y) + 1)
+
+  def mapWithFold[A,B](tree:Tree[A])(f:A => B):Tree[B] =
+    fold(tree)(x => Leaf(f(x)):Tree[B])(Branch(_,_))
 }
 
 object ExcerciseTree {
@@ -97,6 +110,30 @@ object ExcerciseTree {
     )));
     // Ex3.28
     println(Tree.map(
+      Branch(
+        Branch(Leaf(5), Leaf(25)),
+        Branch(Leaf(3), Leaf(27))
+      ))
+      (x => x * 2)
+    );
+    // Ex3.29
+    // fold(size)
+    println(Tree.sizeWithFold(Branch(
+      Branch(Leaf("a"), Leaf("b")),
+      Branch(Leaf("c"), Leaf("d"))
+    )));
+    // fold(maximum)
+    println(Tree.maximumWithFold(Branch(
+      Branch(Leaf(5), Leaf(25)),
+      Branch(Leaf(3), Leaf(27))
+    )));
+    // fold(depth)
+    println(Tree.depthWithFold(Branch(
+      Branch(Leaf("a"), Leaf("b")),
+      Branch(Leaf("c"), Leaf("d"))
+    )));
+    // fold(map)
+    println(Tree.mapWithFold(
       Branch(
         Branch(Leaf(5), Leaf(25)),
         Branch(Leaf(3), Leaf(27))
