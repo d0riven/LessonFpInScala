@@ -213,6 +213,87 @@ object List {
   def flatten[A](as:List[List[A]]):List[A] = {
     foldRight(as, Nil:List[A])(append)
   }
+
+  /**
+   * 3.16
+   * @問題文
+   * 各要素に1を足すことで整数のリストを変換する関数を記述せよ。
+   * 注意：これは新しいListを返す純粋関数になるはずである。
+   */
+  def addOneList(as:List[Int]):List[Int] = as match {
+    case Nil => Nil
+    case Cons(h, t) => Cons(h + 1, addOneList(t))
+  }
+
+  /**
+   * 3.17
+   * @問題文
+   * List[Double]の各値をStringに変換する関数を記述せよ。
+   * d.toStringという四季を使ってd:DoubleをStringに変換できる。
+   */
+  def converDoubleToString(as:List[Double]):List[String] = as match {
+    case Nil => Nil
+    case Cons(h, t) => Cons(h.toString, converDoubleToString(t))
+  }
+
+  /**
+   * 3.18
+   * @問題文
+   * リストの各要素を変更し、かつリストの構造をそのまま保つ総称関数mapを記述せよ。
+   * この関数のシグネチャは以下のとおり。
+   *   def map[A, B](as:List[A])(f:A => B):List[B]
+   */
+  def map[A, B](as:List[A])(f:A => B):List[B] = as match {
+     case Nil => Nil
+     case Cons(h, t) => Cons(f(h), map(t)(f))
+  }
+
+   /**
+    * 3.19
+    * @問題文
+    * 与えられた述語条件が満たされるまでリストから要素を削除するfilter関数を記述せよ。
+    * この関数を使ってList [Int]から奇数をすべて削除せよ。
+    *   def filter[A](as:List[A])(f:A => Booleun): List[A]
+    */
+  def filter[A](as:List[A])(f:A => Boolean): List[A] = as match {
+    case Nil => Nil
+    case Cons(h, t) if !f(h) => filter(t)(f)
+    case Cons(h, t) if f(h)  => Cons(h, filter(t)(f))
+  }
+
+  /**
+   * 3.20
+   * @問題文
+   * mapと同じような働きをするflatMap関数を記述せよ。
+   * この関数は単一の結果ではなくリストを返し、そのリストは最終的な結果のリストに挿入されなければならない。
+   * この関数のシグネチャは以下のとおり。
+   *   def flatMap[A,B](as:List[A])(f:A => List[B]):List[B]
+   * たとえばflatMap(List(1,2,3))(i => List(i, i))はList(1,1,2,2,3,3)になるはずである。
+   */
+  def flatMap[A,B](as:List[A])(f:A => List[B]):List[B] = as match {
+    case Nil => Nil
+    case Cons(h, t) => flatten(List(f(h), flatMap(t)(f)))
+  }
+
+  /**
+   * 3.21
+   * @問題文
+   * flatMapを使ってfilterを実装せよ
+   */
+  // 分からん
+  //def filterWithFlatMap[A](as:List[A])(f:A => Boolean): List[A] = as match {
+  //  case Nil => Nil
+  //}
+
+  /**
+   * 3.22
+   * @問題文
+   * リストを2つ受け取り、対応する要素どうしを足し合わせて新しいリストを生成する関数を記述せよ。
+   * 例えばList(1,2,3)とList(4,5,6)はList(5,7,9)になる。
+   */
+  def addLists(as:List[List[Int]]):List[Int] = as match {
+    case 
+  }
 }
 
 /**
@@ -284,5 +365,16 @@ object Excercise_3 {
     // Ex3.15
     println(List.flatten(List(List(1,2), List(3), List(4, 5, 6))))
     // Ex3.16
+    println(List.addOneList(List(0,1,2)))
+    // Ex3.17
+    println(List.converDoubleToString(List(0.5, 1,5 , 2.5)))
+    // Ex3.18
+    println(List.map(List(0,1,2))(x => x + 1)) // like addOne
+    // Ex3.19
+    println(List.filter(List(1,2,3,4,5,6))(x => x % 2 == 0))
+    // Ex3.20
+    println(List.flatMap(List(1,2,3))(x => List(x,x)))
+    // Ex3.21
+    println(List.filterWithFlatMap(List(1,2,3,4,5,6))(x => x % 2 == 0))
   }
 }
