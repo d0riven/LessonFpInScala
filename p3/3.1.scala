@@ -34,6 +34,12 @@ object List {
 
   def product2(ns:List[Double]) = foldRight(ns, 1.0)(_ * _)
 
+  def append[A](a1:List[A], a2:List[A]):List[A] =
+    a1 match {
+      case Nil => a2
+      case Cons(h,t) => Cons(h, append(t, a2))
+    }
+
   /** Exercise 3.2 */
   def tail[A](as: List[A]): List[A] = as match {
     case Cons(h, t) => t
@@ -96,12 +102,9 @@ object List {
     foldRight(as, 0)((x, y) => 1 + y)
 
   // Exericise 3.10
-  def foldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B = {
-    def go[A](as:List[A], acc:B)(f:(B, A) => B):B = as match {
-      case Nil => acc
-      case Cons(h, t) => go(t, f(acc, h))(f)
-    }
-    go(as, z)(f)
+  def foldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B = as match {
+    case Nil => z
+    case Cons(h, t) => foldLeft(t, f(z, h))(f)
   }
 
   // Exercise 3.11
@@ -122,16 +125,19 @@ object List {
   //  foldLeft(as, z)((x:B, y:A) => f(y:A, x:B):B)
 
   // Excercise 3.14
-  def append[A](as:List[A], t:A):List[A] =
-    foldRight(as, Cons(t, Nil))(Cons(_,_))
+  def appendWithFoldRight[A](as:List[A], t:List[A]):List[A] =
+    foldRight(as, t)(Cons(_,_))
 
   // Excercise 3.15
-  // def flatten[A](as:List[A]*):List[A] = {
-  //   def go(acc:List[A], as:List[A]*) {
-  //     if(as.isEmpty) acc
-  //   }
-  //   go(Nil:List[A], as)
-  // }
+  def flatten[A](as:List[List[A]]):List[A] = {
+    foldRight(as, Nil:List[A])(append)
+  }
+  //def flatten[A](as:List[A]*):List[A] = {
+  //  def go(acc:List[A], as:List[A]*) {
+  //    if(as.isEmpty) acc
+  //  }
+  //  go(Nil:List[A], as)
+  //}
 }
 
 /**
@@ -292,8 +298,9 @@ object Excercise_3 {
     // Ex3.12
     println(List.reverse(List(1,2,3,4,5,6)))
     // Ex3.14
-    println(List.append(List(1,2), 3))
+    println(List.appendWithFoldRight(List(1,2), List(3)))
     // Ex3.15
-    println(List.flatten(List(1,2), List(3), List(4, 5, 6)))
+    println(List.flatten(List(List(1,2), List(3), List(4, 5, 6))))
+    // Ex3.16
   }
 }
