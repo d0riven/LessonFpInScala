@@ -40,17 +40,34 @@ object List {
       case Cons(h,t) => Cons(h, append(t, a2))
     }
 
-  /** Exercise 3.2 */
+  /**
+   * 3.2
+   * @問題文
+   * Listの最初の要素を削除する関数tailを実装せよ。
+   * この関数の実行時間が一定であることに注意。
+   * ListがNilである場合、実装上の選択肢として他に何があるか。
+   * この質問については、次章で再び取り上げる。
+   */
   def tail[A](as: List[A]): List[A] = as match {
     case Cons(h, t) => t
     case _ => List()
   }
 
-  /** Exercise 3.3 */
+  /**
+   * 3.3
+   * @問題文
+   * EXERCISE 3.2と同じ考え方にもとづいて、Listの最初の要素を別の値と置き換えるsetHead関数を実装せよ。
+   */
   def setHead[A](as:List[A], newHead:A): List[A] =
     Cons(newHead, List.tail(as))
 
-  /** Exercise 3.4 */
+  /**
+   * 3.4
+   * @問題文
+   * tailを一般化して、リストの先頭からnこの要素を排除するdropという関数に書き換えよ。
+   * この関数の実行時間は削除する要素の数にのみ比例することに注意。
+   * List全体のコピーを作成する必要はない
+   */
   // 解1
   def drop[A](l:List[A], n:Int):List[A] = {
     def go(l:List[A], n:Int):List[A] =
@@ -67,7 +84,16 @@ object List {
   }
   */
 
-  /** Exercise 3.5 */
+  /**
+   * 3.5
+   * @問題文
+   * 述語とマッチする場合に限り、Listから(先頭から)その要素までの要素を削除するdropWhileを実装せよ。
+   *
+   * def dropWhile[A](l:List[A], f:A => Boolean):List[A]
+   *
+   * @メモ
+   * p47見るとちょっと勘違いしていたかもしれない.
+   */
   // 解1
   def dropWhile[A](l:List[A], f:A => Boolean):List[A] = l match {
     case Cons(h, t) if f(h) => dropWhile(t, f)
@@ -90,24 +116,54 @@ object List {
   }
   */
 
-  // Exercise 3.6
+  /**
+   * 3.6
+   * @問題文
+   * すべてがこのようにうまくいくわけではない。
+   * Listの末尾を除くすべての要素で構成されたListを返すinit関数を実装せよ。
+   * List(1,2,3,4)が与えられた場合、initはList(1,2,3)を返す。
+   * この関数をtailのように一定時間で実装ないのはなぜか。
+   *
+   * def init[A](l:List[A]):List[A]
+   *
+   * @一定時間で実装できない理由
+   * 単方向リストの特性として末尾に行くにはO(n)が必須なため、
+   * 末尾のデータを除くものを取得するには配列の長さ分だけリストの参照を移動する実行する必要があるから
+   */
   def init[A](l:List[A]):List[A] = l match {
     case Cons(h, Nil) => Nil
     case Cons(h, t) => Cons(h, init(t))
     case _ => Nil
   }
 
-  // Exercise 3.9
+  /**
+   * 3.9
+   * @問題文
+   * foldRightを使ってリストの長さを計算せよ。
+   *   def length[A](as:List[A]):Int
+   */
   def length[A](as:List[A]):Int =
     foldRight(as, 0)((x, y) => 1 + y)
 
-  // Exericise 3.10
+  /**
+   * 3.10
+   * @問題文
+   * このfoldRightの実装は末尾再帰ではなく、リストが大きい場合はStackOverrideflowErrorになってしまう。
+   * これはスタックセーフではないと言う。
+   * そうした状況であると仮定し、前章で説明した手法を使って、リスト再帰の総称関数foldLeftを記述せよ。
+   * シグネチャは以下のとおり。
+   *   def foldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B
+   */
   def foldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B = as match {
     case Nil => z
     case Cons(h, t) => foldLeft(t, f(z, h))(f)
   }
 
-  // Exercise 3.11
+  /**
+   * 3.11
+   * @問題文
+   * foldLeftを使ってsum, product, およびリストの長さを計算する関数を記述せよ
+   */
   def sumWithFoldLeft(as:List[Int]):Int =
     foldLeft(as, 0)(_ + _)
   def productWithFoldLeft(as:List[Double]):Double =
@@ -115,87 +171,50 @@ object List {
   def lengthWithFoldLeft[A](as:List[A]):Int =
     foldLeft(as, 0)((x, y) => 1 + x)
 
-  // Excercise 3.12
+  /**
+   * 3.12
+   * @問題文
+   * 要素が逆に並んだリストを返す関数を記述せよ。List(1,2,3)が与えられた場合、この関数はList(3,2,1,)を返す。
+   * 畳み込みを使って記述できるかどうかを確認すること。
+   */
   def reverse[A](as:List[A]):List[A] =
     foldLeft(as, Nil:List[A])((x, y) => Cons(y, x))
 
-  // Exercise 3.13
+  /**
+   * 3.13
+   * @問題文
+   * 難問：foldRightをベースとしてfoldLeftを記述することは可能か。その逆はどうか。
+   * foldLeftを使ってfoldRightを実装すると、foldRightを末尾再帰に実装することが可能となり、
+   * 大きなリストでもスタックオーバーフローが発生しなくなるので便利である。
+   *
+   * @答え
+   * 実装は可能。
+   * 計算の途中の状態で初期状態が変わるものでなければ行けると思う。（そんなパターンがあるかはちゃんと考えてない）
+   */
   // 諦めた
   //def foldRightWithFoldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B =
   //  foldLeft(as, z)((x:B, y:A) => f(y:A, x:B):B)
 
-  // Excercise 3.14
+  /**
+   * 3.14
+   * @問題文
+   * foldLeftまたはfoldRightをベースにappendを作成せよ
+   */
   def appendWithFoldRight[A](as:List[A], t:List[A]):List[A] =
     foldRight(as, t)(Cons(_,_))
 
-  // Excercise 3.15
+  /**
+   * 3.15
+   * @問題文
+   * 難問：複数のリストからなるリストを1つのリストとして連結する関数を記述せよ。
+   * この関数の実行時間はすべてのリストの長さの合計に対して線形になるはずである。
+   * すでに実装した関数を使ってみること。
+   */
   def flatten[A](as:List[List[A]]):List[A] = {
     foldRight(as, Nil:List[A])(append)
   }
-  //def flatten[A](as:List[A]*):List[A] = {
-  //  def go(acc:List[A], as:List[A]*) {
-  //    if(as.isEmpty) acc
-  //  }
-  //  go(Nil:List[A], as)
-  //}
 }
 
-/**
- * 3.1
- * @問題文
- * 以下のマッチ式はどのような結果になるか
- *
- * @答え
- * List(1,2,4,5)   => x          => 1
- * List(1,2,3,4,5) => x + y      => 3
- * Nil             => 42
- * List(2,3,4,5)   => h + sum(t) => 14
- * other           => 101
- */
-/**
- * 3.2
- * @問題文
- * Listの最初の要素を削除する関数tailを実装せよ。
- * この関数の実行時間が一定であることに注意。
- * ListがNilである場合、実装上の選択肢として他に何があるか。
- * この質問については、次章で再び取り上げる。
- */
-/**
- * 3.3
- * @問題文
- * EXERCISE 3.2と同じ考え方にもとづいて、Listの最初の要素を別の値と置き換えるsetHead関数を実装せよ。
- */
-/**
- * 3.4
- * @問題文
- * tailを一般化して、リストの先頭からnこの要素を排除するdropという関数に書き換えよ。
- * この関数の実行時間は削除する要素の数にのみ比例することに注意。
- * List全体のコピーを作成する必要はない
- */
-/**
- * 3.5
- * @問題文
- * 述語とマッチする場合に限り、Listから(先頭から)その要素までの要素を削除するdropWhileを実装せよ。
- *
- * def dropWhile[A](l:List[A], f:A => Boolean):List[A]
- *
- * @メモ
- * p47見るとちょっと勘違いしていたかもしれない.
- */
-/**
- * 3.6
- * @問題文
- * すべてがこのようにうまくいくわけではない。
- * Listの末尾を除くすべての要素で構成されたListを返すinit関数を実装せよ。
- * List(1,2,3,4)が与えられた場合、initはList(1,2,3)を返す。
- * この関数をtailのように一定時間で実装ないのはなぜか。
- *
- * def init[A](l:List[A]):List[A]
- *
- * @一定時間で実装できない理由
- * 単方向リストの特性として末尾に行くにはO(n)が必須なため、
- * 末尾のデータを除くものを取得するには配列の長さ分だけリストの参照を移動する実行する必要があるから
- */
 /**
  * 3.7
  * @問題文
@@ -217,57 +236,20 @@ object List {
  * foldRightでマッチングされるリスト(Cons)とList自体のコンストラクタが同一である。
  * applyもfoldRightを使うことで表現できるということになり、applyをfoldRightで表現したのが上記の関数呼び出しになる。
  */
-/**
- * 3.9
- * @問題文
- * foldRightを使ってリストの長さを計算せよ。
- *   def length[A](as:List[A]):Int
- */
-/**
- * 3.10
- * @問題文
- * このfoldRightの実装は末尾再帰ではなく、リストが大きい場合はStackOverrideflowErrorになってしまう。
- * これはスタックセーフではないと言う。
- * そうした状況であると仮定し、前章で説明した手法を使って、リスト再帰の総称関数foldLeftを記述せよ。
- * シグネチャは以下のとおり。
- *   def foldLeft[A,B](as:List[A], z:B)(f:(B, A) => B):B
- */
-/**
- * 3.11
- * @問題文
- * foldLeftを使ってsum, product, およびリストの長さを計算する関数を記述せよ
- */
-/**
- * 3.12
- * @問題文
- * 要素が逆に並んだリストを返す関数を記述せよ。List(1,2,3)が与えられた場合、この関数はList(3,2,1,)を返す。
- * 畳み込みを使って記述できるかどうかを確認すること。
- */
-/**
- * 3.13
- * @問題文
- * 難問：foldRightをベースとしてfoldLeftを記述することは可能か。その逆はどうか。
- * foldLeftを使ってfoldRightを実装すると、foldRightを末尾再帰に実装することが可能となり、
- * 大きなリストでもスタックオーバーフローが発生しなくなるので便利である。
- *
- * @答え
- * 実装は可能。
- * 計算の途中の状態で初期状態が変わるものでなければ行けると思う。（そんなパターンがあるかはちゃんと考えてない）
- */
-/**
- * 3.14
- * @問題文
- * foldLeftまたはfoldRightをベースにappendを作成せよ
- */
-/**
- * 3.15
- * @問題文
- * 難問：複数のリストからなるリストを1つのリストとして連結する関数を記述せよ。
- * この関数の実行時間はすべてのリストの長さの合計に対して線形になるはずである。
- * すでに実装した関数を使ってみること。
- */
 object Excercise_3 {
   def main(args: Array[String]) {
+    /**
+     * 3.1
+     * @問題文
+     * 以下のマッチ式はどのような結果になるか
+     *
+     * @答え
+     * List(1,2,4,5)   => x          => 1
+     * List(1,2,3,4,5) => x + y      => 3
+     * Nil             => 42
+     * List(2,3,4,5)   => h + sum(t) => 14
+     * other           => 101
+     */
     val x = List(1,2,3,4,5) match {
       case Cons(x, Cons(2, Cons(4, _))) => x
       case Nil => 42
